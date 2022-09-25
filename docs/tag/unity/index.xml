@@ -1,4 +1,177 @@
-<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Unity | アプリNaviブログ</title><link>https://blog.opuappnavi.com/tag/unity/</link><atom:link href="https://blog.opuappnavi.com/tag/unity/index.xml" rel="self" type="application/rss+xml"/><description>Unity</description><generator>Wowchemy (https://wowchemy.com)</generator><language>ja</language><lastBuildDate>Sat, 24 Sep 2022 20:30:00 +0900</lastBuildDate><image><url>https://blog.opuappnavi.com/media/icon_hude4548ff0fbec708553074fd5e552c37_155941_512x512_fill_lanczos_center_3.png</url><title>Unity</title><link>https://blog.opuappnavi.com/tag/unity/</link></image><item><title>迷路の自動生成と自動探索（Unity）</title><link>https://blog.opuappnavi.com/post/syota-kawaguchi-2022/</link><pubDate>Sat, 24 Sep 2022 20:30:00 +0900</pubDate><guid>https://blog.opuappnavi.com/post/syota-kawaguchi-2022/</guid><description>&lt;h1 id="はじめに">はじめに&lt;/h1>
+<?xml version="1.0" encoding="utf-8" standalone="yes"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>Unity | アプリNaviブログ</title><link>https://blog.opuappnavi.com/tag/unity/</link><atom:link href="https://blog.opuappnavi.com/tag/unity/index.xml" rel="self" type="application/rss+xml"/><description>Unity</description><generator>Wowchemy (https://wowchemy.com)</generator><language>ja</language><lastBuildDate>Sun, 25 Sep 2022 21:00:00 +0900</lastBuildDate><image><url>https://blog.opuappnavi.com/media/icon_hude4548ff0fbec708553074fd5e552c37_155941_512x512_fill_lanczos_center_3.png</url><title>Unity</title><link>https://blog.opuappnavi.com/tag/unity/</link></image><item><title>【ニフクラ】unityでランキング機能作ってみた</title><link>https://blog.opuappnavi.com/post/ranking-prototype/</link><pubDate>Sun, 25 Sep 2022 21:00:00 +0900</pubDate><guid>https://blog.opuappnavi.com/post/ranking-prototype/</guid><description>&lt;p>(Unityでランキング機能を自作したいなぁ)&lt;br>
+そう思ったことありませんか？&lt;br>
+&lt;strong>ありますね？&lt;/strong>&lt;br>
+この記事では、ランキング機能が完成するまでの過程を載せていきます。&lt;br>&lt;/p>
+&lt;h1 id="下準備">下準備&lt;/h1>
+&lt;p>仮のデータ（HighScoreクラスのリスト）を用いてランキングを表示する機能を、あらかじめ作ります。&lt;br>
+&lt;figure id="figure-あらかじめ作ったランキング機能">
+&lt;div class="d-flex justify-content-center">
+&lt;div class="w-100" >&lt;img src="./RankingPrototype_1.gif" alt="あらかじめ作ったランキング機能" loading="lazy" data-zoomable />&lt;/div>
+&lt;/div>&lt;figcaption>
+あらかじめ作ったランキング機能
+&lt;/figcaption>&lt;/figure>
+HighScoreクラスの中身はこんな感じ&lt;/p>
+&lt;pre>&lt;code class="language-c#:">public class HighScore
+{
+public string Name { set; get; }
+public int Score { set; get; }
+public HighScore(string name, int score)
+{
+this.Name = name;
+this.Score = score;
+}
+}
+&lt;/code>&lt;/pre>
+&lt;p>あとは、ランキングデータをオンライン上で取得するだけ。&lt;/p>
+&lt;h1 id="ニフクラnif-cloudを使う">ニフクラ（NIF CLOUD）を使う&lt;/h1>
+&lt;p>ニフクラパワー！！！&lt;br>
+はい、ニフクラのmobilebackend使います。&lt;br>&lt;/p>
+&lt;p>&lt;a href="https://mbaas.nifcloud.com/" target="_blank" rel="noopener">https://mbaas.nifcloud.com/&lt;/a> &lt;br>&lt;/p>
+&lt;p>ニフクラは富士通が提供しているクラウドサービスですね。
+今回は、その中のサービスの一つであるmobilebackendを使って、ランキングをオンライン対応にしていきます。&lt;/p>
+&lt;h2 id="1-ncmbのダウンロード">1 NCMBのダウンロード&lt;/h2>
+&lt;p>まずは、NCMBのダウンロー&amp;hellip;おっと、彼が説明してくれるみたいだ。↓&lt;/p>
+&lt;p>&lt;a href="https://mbaas.nifcloud.com/doc/current/introduction/quickstart_unity.html" target="_blank" rel="noopener">https://mbaas.nifcloud.com/doc/current/introduction/quickstart_unity.html&lt;/a>&lt;/p>
+&lt;p>ありがたくご教授いただこう。&lt;/p>
+&lt;p>これを自分のプロジェクトに導入していきます。
+&lt;figure id="figure-導入した画像">
+&lt;div class="d-flex justify-content-center">
+&lt;div class="w-100" >&lt;img src="./ScreenShot.png" alt="導入した画像" loading="lazy" data-zoomable />&lt;/div>
+&lt;/div>&lt;figcaption>
+導入した画像
+&lt;/figcaption>&lt;/figure>&lt;/p>
+&lt;h2 id="2-プログラミング">2 プログラミング&lt;/h2>
+&lt;p>まず、基本的には公式ホームページに載ってあるコードを写して行います。
+そして、それを自分のランキング機能に合わせて修正していきます。&lt;br>
+コードを一部紹介していきます。&lt;/p>
+&lt;p>↓クラウドからデータを取得して、タグを作る&lt;/p>
+&lt;pre>&lt;code class="language-c#:">public void CreateTagsFromCloud()
+{
+NCMBQuery&amp;lt;NCMBObject&amp;gt; query = new NCMBQuery&amp;lt;NCMBObject&amp;gt;(&amp;quot;GameScore&amp;quot;);
+query.OrderByDescending(&amp;quot;score&amp;quot;);
+query.Limit = rankingLimit;
+query.FindAsync((List&amp;lt;NCMBObject&amp;gt; objList, NCMBException e) =&amp;gt;
+{
+if (e != null)
+{
+Debug.Log(&amp;quot;検索失敗&amp;quot;);
+}
+else
+{
+List&amp;lt;HighScore&amp;gt; list = new List&amp;lt;HighScore&amp;gt;();
+foreach (var obj in objList)
+{
+list.Add(new HighScore(System.Convert.ToString(obj[&amp;quot;name&amp;quot;]), System.Convert.ToInt32(obj[&amp;quot;score&amp;quot;])));
+}
+topRanker = list;
+//topRankerの更新を確実にしてから、描写
+DeleteTags();
+CreateTags();
+}
+});
+}
+&lt;/code>&lt;/pre>
+&lt;p>↓ハイスコアをクラウド上にセーブ&lt;/p>
+&lt;pre>&lt;code class="language-c#:">public void SaveHighScore(HighScore highScore)
+{
+NCMBObject obj = new NCMBObject(&amp;quot;GameScore&amp;quot;);
+obj[&amp;quot;name&amp;quot;] = highScore.Name;
+obj[&amp;quot;score&amp;quot;] = highScore.Score;
+string oldName = PlayerPrefs.GetString(&amp;quot;name&amp;quot;, &amp;quot;&amp;quot;);
+Debug.Log(&amp;quot;oldName = &amp;quot; + oldName);
+if (oldName == &amp;quot;&amp;quot;)
+{
+//初めて登録する場合
+SaveNewData(obj, highScore);
+}
+else
+{
+int index = GetIndexFromName(oldName);
+if (index == -1)
+{
+//名前がクラウドデータに含まれていなかった場合
+SaveNewData(obj, highScore);
+}
+else
+{
+//名前がクラウドデータに含まれていた場合、名前だけ変更。
+NCMBQuery&amp;lt;NCMBObject&amp;gt; query = new NCMBQuery&amp;lt;NCMBObject&amp;gt;(&amp;quot;GameScore&amp;quot;);
+query.FindAsync((List&amp;lt;NCMBObject&amp;gt; objList, NCMBException e) =&amp;gt;
+{
+if(e != null)
+{
+Debug.Log(&amp;quot;検索失敗&amp;quot;);
+}
+else
+{
+foreach (var obj in objList)
+{
+if ((string)obj[&amp;quot;name&amp;quot;] == oldName)
+{
+ChangeData(obj, highScore);
+}
+}
+}
+});
+}
+}
+}
+void SaveNewData(NCMBObject obj, HighScore highScore)
+{
+obj.SaveAsync((NCMBException e) =&amp;gt;
+{
+if (e != null)
+{
+Debug.Log(&amp;quot;保存失敗&amp;quot;);
+}
+else
+{
+PlayerPrefs.SetString(&amp;quot;name&amp;quot;, highScore.Name);
+PlayerPrefs.Save();
+//HighScoreデータのセーブを確実にしてから、描写
+CreateTagsFromCloud();
+}
+});
+}
+void ChangeData(NCMBObject obj, HighScore highScore)
+{
+obj[&amp;quot;name&amp;quot;] = highScore.Name;
+obj[&amp;quot;score&amp;quot;] = highScore.Score;
+obj.SaveAsync((NCMBException e) =&amp;gt;
+{
+if (e != null)
+{
+Debug.Log(&amp;quot;セーブ失敗&amp;quot;);
+}
+else
+{
+PlayerPrefs.SetString(&amp;quot;name&amp;quot;, highScore.Name);
+PlayerPrefs.Save();
+//HighScoreデータの変更を確実にしてから、描写
+CreateTagsFromCloud();
+}
+});
+}
+&lt;/code>&lt;/pre>
+&lt;p>これでやっと動きました。&lt;/p>
+&lt;p>苦労した点は、名前の通りSaveAsyncやFindAsyncが非同期メソッドであることですかね。&lt;br>
+引数である匿名メソッドの中にその後の処理を書かないと、思った通りの動きをしてくれないので苦しかったです。&lt;br>&lt;/p>
+&lt;h1 id="完成品はこちら">完成品はこちら&lt;/h1>
+&lt;p>
+&lt;figure id="figure-完成したランキング機能">
+&lt;div class="d-flex justify-content-center">
+&lt;div class="w-100" >&lt;img src="./RankingPrototype_2.gif" alt="完成したランキング機能" loading="lazy" data-zoomable />&lt;/div>
+&lt;/div>&lt;figcaption>
+完成したランキング機能
+&lt;/figcaption>&lt;/figure>&lt;br>
+↓unityroomからプレイ&lt;br>
+&lt;a href="https://unityroom.com/games/rankingprototype" target="_blank" rel="noopener">https://unityroom.com/games/rankingprototype&lt;/a>&lt;/p>
+&lt;p>↓githubからコードを見る&lt;br>
+&lt;a href="https://github.com/KenshinKaraage/RankingPrototype" target="_blank" rel="noopener">https://github.com/KenshinKaraage/RankingPrototype&lt;/a>&lt;/p>
+&lt;p>コーディングに関して意見があれば、お願いします。&lt;/p>
+&lt;h1 id="以上">以上&lt;/h1>
+&lt;p>今回はほとんどニフクラMobileBackendの説明になりましたが、使いどころはまだまだたくさんあります。&lt;br>
+皆さんも是非、オンライン実装してみてはいかがでしょうか。&lt;br>&lt;/p></description></item><item><title>迷路の自動生成と自動探索（Unity）</title><link>https://blog.opuappnavi.com/post/syota-kawaguchi-2022/</link><pubDate>Sat, 24 Sep 2022 20:30:00 +0900</pubDate><guid>https://blog.opuappnavi.com/post/syota-kawaguchi-2022/</guid><description>&lt;h1 id="はじめに">はじめに&lt;/h1>
 &lt;p>夏休みにアプリNaviでAdvent Calendar的なものをすることになり、Unityで迷路の自動生成と自動探索を実装してみましたので、今回はそれを記事に書いていこうと思います。(といっても他の記事からロジックを拝借して実装しただけですが&amp;hellip;)&lt;/p>
 &lt;h1 id="迷路の自動生成">迷路の自動生成&lt;/h1>
 &lt;p>まず迷路の自動生成を行います。迷路の自動生成は以下の記事から棒倒し法のロジックを拝借いたしました。棒倒し法で生成した迷路をUnityで実体化しております。&lt;br>
