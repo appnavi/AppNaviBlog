@@ -1106,7 +1106,7 @@ Utilities.sleep(1000);
 &lt;/div>
 &lt;h1 id="fireship">Fireship&lt;/h1>
 &lt;p>Angular、React、Flutter、Dockerなど幅広いジャンルの動画を投稿しています。&lt;/p>
-&lt;p>一部の動画では、動画内で扱ったデモのソースコードをGitHubに後悔しています。&lt;/p>
+&lt;p>一部の動画では、動画内で扱ったデモのソースコードをGitHubに公開しています。&lt;/p>
 &lt;ul class="cta-group">
 &lt;li>
 &lt;a href="https://www.youtube.com/channel/UCsBjURrPoezykLs9EqgamOA" target="_blank" rel="noopener" class="btn btn-primary px-3 py-3">チャンネルを見る&lt;/a>
