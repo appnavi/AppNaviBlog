@@ -36,7 +36,7 @@ projects: ["club-introduction-blog-relay-2021-spring"]
 
 Angular、React、Flutter、Dockerなど幅広いジャンルの動画を投稿しています。
 
-一部の動画では、動画内で扱ったデモのソースコードをGitHubに後悔しています。
+一部の動画では、動画内で扱ったデモのソースコードをGitHubに公開しています。
 
 {{<cta cta_text="チャンネルを見る" cta_link="https://www.youtube.com/channel/UCsBjURrPoezykLs9EqgamOA" cta_new_tab="true">}}
 
