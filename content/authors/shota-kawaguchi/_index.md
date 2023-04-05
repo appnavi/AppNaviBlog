@@ -17,8 +17,8 @@ superuser: false
 # year_offset: 留年・飛び級などで学年がずれる場合、そのずれた年数(例：「1」「-1」) (空白のままなら無視される)
 # grade_label: 「〇年」「M〇」の代わりに別の文言を表示したい場合 (空白のままなら無視される)
 university:
-  faculty: 現代システム学類
-  department: 知識情報システム学類
+  faculty: 情報学研究科
+  department: 学際情報学専攻
   course: 
   enrollment: 2019
   year_offset: 

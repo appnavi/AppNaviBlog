@@ -26,9 +26,9 @@ superuser: true
 #  grade_label: 「〇年」「M〇」の代わりに別の文言を表示したい場合 (空白のままなら無視される)
 
 university:
-  faculty: 工学域
-  department: 電気電子系学類
-  course: 情報工学課程
+  faculty: 情報学研究科
+  department: 基幹情報学専攻
+  course: 知能情報学分野
   enrollment: 2019
   year_offset: 
   grade_label: 
